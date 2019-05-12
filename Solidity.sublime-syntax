@@ -2,6 +2,7 @@
 ---
 name: Solidity
 file_extensions: [sol]
+first_line_match: '^pragma solidity'
 scope: source.solidity
 
 variables:
@@ -16,7 +17,9 @@ variables:
 
   ether_units: '(?:wei|finney|szabo|ether)'
   time_units: '(?:seconds|minutes|hours|days|weeks|years)'
-  type: '(?:address\s*payable|address|string|bytes?\d*|int\d*|uint\d*|bool|u?fixed\d+x\d+)'
+  multiple_of_8: '(?:8|16|24|32|40|48|56|64|72|80|88|96|104|112|120|128|136|144|152|160|168|176|184|192|200|208|216|224|232|240|248|256)'
+  int_type: '(?:(?:bytes?|int|uint){{multiple_of_8}})'
+  type: '(?:address(?:\s+payable)?|string|bool|{{int_type}}|u?fixed\d+x\d+)'
   custom_type: '(?:[A-Za-z_][\w\.]*)' # ex.: A.MyStruct
   attribute: '(?:indexed|memory|storage|calldata|payable)'
   type_modifier: '(?:private|public|internal|external|constant|memory|storage)'
@@ -318,7 +321,7 @@ contexts:
           scope: punctuation.section.block.end.sol
           pop: true
     - include: function-modifiers
-    - include: '{{identifier}}'
+    # - include: '{{identifier}}'
     - match: \;
       pop: true
     - include: else-pop
@@ -409,9 +412,9 @@ contexts:
     - match: \bdo\b
       scope: keyword.control
       push:
-        - expression-in-brackets
-        - while-keyword
         - control-structure-body
+        - while-keyword
+        - expression-in-brackets
 
   while-keyword:
     - match: \bwhile\b
@@ -525,8 +528,8 @@ contexts:
         - include: expression
     - include: function-call
     - include: expression-keyword
-    - include: '{{expression_keyword_main}}'
-      scope: variable.parameter
+    # - include: '{{expression_keyword_main}}'
+    #   scope: variable.parameter
     - match: \b({{number}})\s+({{ether_units}}|{{time_units}})\b
       captures:
         1: constant.numeric
@@ -705,7 +708,7 @@ contexts:
     - include: else-pop
 
   function-modifiers-recursive:
-    - include: function-modifier
+    # - include: function-modifier
     - include: function-modifiers
 
     ## function-returns
